@@ -33,9 +33,8 @@ When using the prompt remotely, tell the LLM to load the references from the
 same `pentest/` GitHub directory. The prompt records that source location in
 the report so the skill files and target files are not confused.
 
-This repository is currently private, so an LLM without GitHub credentials
-cannot fetch the raw URLs. For a private repository, authenticate GitHub and
-clone the skill package locally instead:
+If you use the skill from a private fork, authenticate GitHub and clone the
+skill package locally instead:
 
 ```bash
 gh auth login
@@ -75,7 +74,7 @@ resolved target before allowing any dynamic testing.
 
 To update the installed command later, run the same `curl` command again.
 
-For this private repository, use the authenticated clone instead:
+For a private fork, use the authenticated clone instead:
 
 ```bash
 gh auth login
