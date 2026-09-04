@@ -13,15 +13,16 @@ an LLM tool that supports custom commands.
 
 ## Use Directly From GitHub
 
-For a public repository, give the LLM both the raw prompt URL and an explicit
-task. Pasting only a URL does not execute its contents; the model may only
-summarize or acknowledge the document.
+For a public repository, give the LLM the raw prompt URL. The document contains
+an activation instruction: after fetching it, the LLM should start the wizard
+instead of returning a retrieval receipt. A target path is still required
+unless the LLM has a current workspace.
 
 ```text
 https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md
 ```
 
-Use a message like this:
+For the most reliable result, include the target explicitly:
 
 ```text
 Read and follow the security-assessment instructions at
