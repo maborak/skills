@@ -13,21 +13,42 @@ an LLM tool that supports custom commands.
 
 ## Use Directly From GitHub
 
-For a public repository, copy the raw prompt URL into an LLM session:
+For a public repository, give the LLM both the raw prompt URL and an explicit
+task. Pasting only a URL does not execute its contents; the model may only
+summarize or acknowledge the document.
 
 ```text
 https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md
 ```
 
-Then ask the LLM to read that URL and assess a local target, for example:
+Use a message like this:
 
 ```text
-Read https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md
-and use it to assess the local repository at ./ORDERS.
+Read and follow the security-assessment instructions at
+https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md.
+Also load all reference files in its `references/` directory. Apply them now
+to the local repository at ./ORDERS. Begin by resolving the target, recording
+the baseline, and performing the assessment. Do not only summarize the prompt.
 ```
 
 The LLM still needs access to the target codebase. A prompt URL alone does not
 grant repository or filesystem access.
+
+If the LLM cannot browse URLs, download the prompt and references first, then
+paste their contents into the session:
+
+```bash
+mkdir -p /tmp/mabo-pentest/references
+curl -fsSL https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md \
+  -o /tmp/mabo-pentest/PENTEST.md
+for file in methodology coverage exploitation reporting severity html-reporting; do
+  curl -fsSL "https://raw.githubusercontent.com/maborak/skills/main/pentest/references/$file.md" \
+    -o "/tmp/mabo-pentest/references/$file.md"
+done
+```
+
+Then tell the LLM: `Use the attached PENTEST.md and reference files to assess
+./ORDERS now. Do not summarize the instructions; execute them.`
 
 When using the prompt remotely, tell the LLM to load the references from the
 same `pentest/` GitHub directory. The prompt records that source location in
