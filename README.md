@@ -27,8 +27,9 @@ Use a message like this:
 Read and follow the security-assessment instructions at
 https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md.
 Also load all reference files in its `references/` directory. Apply them now
-to the local repository at ./ORDERS. Begin by resolving the target, recording
-the baseline, and performing the assessment. Do not only summarize the prompt.
+to the local repository at ./ORDERS. Start the discovery-first wizard: explain
+the skill, resolve the target, record the baseline, perform safe discovery, and
+present a plan for approval. Do not only summarize the prompt.
 ```
 
 The LLM still needs access to the target codebase. A prompt URL alone does not
@@ -49,6 +50,10 @@ done
 
 Then tell the LLM: `Use the attached PENTEST.md and reference files to assess
 ./ORDERS now. Do not summarize the instructions; execute them.`
+
+The skill intentionally starts as a wizard: it explains the assessment,
+performs safe discovery, presents a plan, and waits for approval before deeper
+analysis or dynamic testing.
 
 When using the prompt remotely, tell the LLM to load the references from the
 same `pentest/` GitHub directory. The prompt records that source location in
