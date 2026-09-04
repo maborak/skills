@@ -13,7 +13,7 @@ an LLM tool that supports custom commands.
 
 ## Use Directly From GitHub
 
-Copy the raw prompt URL into an LLM session:
+For a public repository, copy the raw prompt URL into an LLM session:
 
 ```text
 https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md
@@ -33,9 +33,26 @@ When using the prompt remotely, tell the LLM to load the references from the
 same `pentest/` GitHub directory. The prompt records that source location in
 the report so the skill files and target files are not confused.
 
+This repository is currently private, so an LLM without GitHub credentials
+cannot fetch the raw URLs. For a private repository, authenticate GitHub and
+clone the skill package locally instead:
+
+```bash
+gh auth login
+mkdir -p ~/.claude/skills
+git clone https://github.com/maborak/skills.git ~/.claude/skills/maborak-skills
+```
+
+Then provide the local prompt path to the LLM:
+
+```text
+Read ~/.claude/skills/maborak-skills/pentest/PENTEST.md and its references,
+then assess ./ORDERS.
+```
+
 ## Install `/mabo-pentest` In Claude Code
 
-Install the command globally:
+Install the command globally from a public repository:
 
 ```bash
 mkdir -p ~/.claude/commands
@@ -57,6 +74,19 @@ path directly, or asks for permission before cloning a Git URL. Review the
 resolved target before allowing any dynamic testing.
 
 To update the installed command later, run the same `curl` command again.
+
+For this private repository, use the authenticated clone instead:
+
+```bash
+gh auth login
+mkdir -p ~/.claude/commands ~/.claude/skills
+git clone https://github.com/maborak/skills.git ~/.claude/skills/maborak-skills
+cp ~/.claude/skills/maborak-skills/commands/mabo-pentest.md \
+  ~/.claude/commands/mabo-pentest.md
+```
+
+The command then loads the prompt and references from the authenticated local
+clone, while recording that local package path as `SKILL_SOURCE`.
 
 ## Manual Use
 
