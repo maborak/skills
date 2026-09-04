@@ -52,9 +52,10 @@ done
 Then tell the LLM: `Use the attached PENTEST.md and reference files to assess
 ./ORDERS now. Do not summarize the instructions; execute them.`
 
-The skill intentionally starts as a wizard: it explains the assessment,
-performs safe discovery, presents a plan, and waits for approval before deeper
-analysis or dynamic testing.
+The skill intentionally starts as a consent wizard: it explains the assessment
+without inspecting the target, asks whether to continue, and only then performs
+safe discovery, presents a plan, and waits for approval before deeper analysis
+or dynamic testing.
 
 When using the prompt remotely, tell the LLM to load the references from the
 same `pentest/` GitHub directory. The prompt records that source location in
