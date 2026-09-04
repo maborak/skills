@@ -7,9 +7,9 @@ an LLM tool that supports custom commands.
 ## Available Skills
 
 - [`pentest/PENTEST.md`](pentest/PENTEST.md): independent, project-agnostic
-  application security assessment with runtime discovery, adaptive standards,
-  Graphify detection, loopback-only red/blue validation, evidence requirements,
-  and remediation approval gates.
+  application security assessment with automatic target/tooling bootstrap,
+  adaptive standards, Graphify detection, loopback-only red/blue validation,
+  evidence requirements, and remediation approval gates.
 - [`commands/mabo-pentest.md`](commands/mabo-pentest.md): `/mabo-pentest`
   wrapper accepting a local path, project name, or Git URL.
 
@@ -32,10 +32,12 @@ an explicit execution request:
 ```text
 Fetch, read, and execute the security-assessment skill at
 https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md.
-Apply it to the local repository at ./ORDERS. Start Gate 0 only: explain the
-skill and ask for consent. Do not summarize the prompt, inspect the target, load
-its references, or use tools until consent. After consent, load every reference
-named by `PENTEST.md` from the same `pentest/` directory before discovery.
+Apply it to the local repository at ./ORDERS. Run its bounded bootstrap now:
+load every named reference from the same `pentest/` directory, inspect the local
+target read-only, detect its architecture and available assessment tools, and
+present the target-specific plan for approval. Do not only summarize the prompt.
+Do not start services, install tools, run scanners, send application requests,
+or alter the target before I approve the presented plan.
 ```
 
 The LLM still needs access to the target codebase. A prompt URL alone does not
@@ -49,22 +51,22 @@ their contents into the session:
 mkdir -p /tmp/mabo-pentest/references
 curl -fsSL https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md \
   -o /tmp/mabo-pentest/PENTEST.md
-for file in wizard runtime-topology technology-standards graphify coverage attack-campaign methodology exploitation severity reporting html-reporting review-gate; do
+for file in wizard tool-bootstrap runtime-topology technology-standards graphify coverage attack-campaign methodology exploitation severity reporting html-reporting review-gate; do
   curl -fsSL "https://raw.githubusercontent.com/maborak/skills/main/pentest/references/$file.md" \
     -o "/tmp/mabo-pentest/references/$file.md"
 done
 ```
 
 Then tell the LLM: `Use the attached PENTEST.md and all reference files to
-assess ./ORDERS. Execute Gate 0 only; do not summarize or inspect the target
-until I consent.`
+bootstrap ./ORDERS now. Inspect it read-only, detect the exact toolchain and
+assessment plan, present the project-specific wizard summary, and wait for my
+approval before executing the assessment.`
 
-The skill intentionally starts as a consent wizard: it explains the assessment
-without inspecting the target, asks whether to continue, then performs safe
-runtime/technology/Graphify discovery, presents a standards and campaign plan,
-and waits for approval before deeper analysis or dynamic testing. It produces a
-final review package with full Markdown and `file://` HTML locations before any
-remediation discussion.
+The skill intentionally starts as a bootstrap wizard. Invocation performs
+bounded read-only target, runtime, technology, Graphify, and tool-readiness
+discovery, then presents what the tool does and the exact target-specific work
+it proposes. Approval starts the listed analysis and local dynamic testing. A
+separate final decision is still required before remediation.
 
 When using the prompt remotely, tell the LLM to load the references from the
 same `pentest/` GitHub directory. The prompt records that source location in
@@ -83,7 +85,8 @@ Then provide the local prompt path to the LLM:
 
 ```text
 Use ~/.claude/skills/maborak-skills/pentest/PENTEST.md to assess ./ORDERS.
-Start Gate 0 only. After I consent, load its references and begin discovery.
+Bootstrap the target and tools now, present the exact plan, and wait for my
+approval before running the assessment.
 ```
 
 ## Install `/mabo-pentest` In Claude Code
@@ -105,9 +108,9 @@ Restart Claude Code if it was already running, then use:
 /mabo-pentest
 ```
 
-After consent, the command resolves a project name in the current workspace,
-uses a local path directly, or asks for permission before cloning a Git URL.
-Review the resolved target before allowing any dynamic testing.
+The command bootstraps a project name in the current workspace or a supplied
+local path immediately. It asks for permission before cloning a Git URL. Review
+the detected target, toolchain, and proposed work before approving execution.
 
 To update the installed command later, run the same `curl` command again.
 
@@ -121,15 +124,16 @@ cp ~/.claude/skills/maborak-skills/commands/mabo-pentest.md \
   ~/.claude/commands/mabo-pentest.md
 ```
 
-After Gate 0 consent, the command loads the prompt and references from the
+During bootstrap, the command loads the prompt and references from the
 authenticated local clone while recording that package path as `SKILL_SOURCE`.
 
 ## Manual Use
 
 Open [`pentest/PENTEST.md`](pentest/PENTEST.md), copy the prompt into a fresh
-LLM session, and provide the local target path. Review findings and proposed
-changes before approving any remediation. The prompt forbids commits and
-application patches unless you explicitly approve them.
+LLM session, and provide the local target path. It will bootstrap the target and
+present the selected tools and assessment plan before proceeding. Review final
+findings and proposed changes before approving any remediation. The prompt
+forbids commits and application patches unless you explicitly approve them.
 
 ## Adding A Skill
 
