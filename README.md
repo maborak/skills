@@ -9,8 +9,8 @@ an LLM tool that supports custom commands.
 - [`pentest/PENTEST.md`](pentest/PENTEST.md): independent, project-agnostic
   application security assessment with automatic target/tooling bootstrap,
   strict project-only containment, adaptive standards, Graphify detection,
-  loopback-only red/blue validation, evidence requirements, and remediation
-  approval gates.
+  loopback-only red/blue validation, an append-only LLM execution trace, a
+  complete chronological test report, and remediation approval gates.
 - [`commands/mabo-pentest.md`](commands/mabo-pentest.md): `/mabo-pentest`
   wrapper accepting a local path, project name, or Git URL.
 
@@ -34,14 +34,16 @@ an explicit execution request:
 Fetch, read, and execute the security-assessment skill at
 https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md.
 Apply it to the local repository at ./ORDERS. Run its bounded bootstrap now:
-load every named reference from the same `pentest/` directory, inspect the local
-target read-only, detect its architecture and available assessment tools, and
-present the target-specific plan for approval. Do not only summarize the prompt.
+load the bootstrap references named by the prompt from the same `pentest/`
+directory, inspect the local target read-only, detect its architecture and
+available assessment tools, and present the target-specific plan for approval.
+Defer later-gate references and do not only summarize the prompt.
 Do not start services, install tools, run scanners, send application requests,
 or alter the target before I approve the presented plan. Treat ./ORDERS as the
 only project root: do not inspect parents, siblings, home/global configuration,
 other repositories, or paths reached through escaping symlinks. Write every
-artifact under ./ORDERS/.mabo-pentest/.
+artifact under ./ORDERS/.mabo-pentest/. Maintain the required append-only
+llm-trace.jsonl so another LLM can audit every observable action and result.
 ```
 
 The LLM still needs access to the target codebase. A prompt URL alone does not
@@ -55,7 +57,7 @@ their contents into the session:
 mkdir -p /tmp/mabo-pentest/references
 curl -fsSL https://raw.githubusercontent.com/maborak/skills/main/pentest/PENTEST.md \
   -o /tmp/mabo-pentest/PENTEST.md
-for file in wizard project-boundary tool-bootstrap runtime-topology technology-standards graphify coverage attack-campaign methodology exploitation severity reporting html-reporting review-gate; do
+for file in wizard project-boundary llm-trace tool-bootstrap runtime-topology technology-standards graphify coverage attack-campaign methodology exploitation severity reporting html-reporting review-gate; do
   curl -fsSL "https://raw.githubusercontent.com/maborak/skills/main/pentest/references/$file.md" \
     -o "/tmp/mabo-pentest/references/$file.md"
 done
@@ -65,15 +67,23 @@ Then tell the LLM: `Use the attached PENTEST.md and all reference files to
 bootstrap ./ORDERS now. Inspect it read-only, detect the exact toolchain and
 assessment plan, present the project-specific wizard summary, and wait for my
 approval before executing the assessment. Treat ./ORDERS as the only project
-root and never search outside it.`
+root and never search outside it. Do not create or advertise a final report
+until the approved assessment reaches and passes its final review gate. Maintain
+the internal llm-trace.jsonl and provide its path and SHA-256 digest.`
 
 The skill intentionally starts as a bootstrap wizard. Invocation performs
 bounded read-only target, runtime, technology, Graphify, and tool-readiness
 discovery, then presents what the tool does and the exact target-specific work
 it proposes. Approval starts the listed analysis and local dynamic testing. A
-separate final decision is still required before remediation. All target input
-and audit output remain under the selected project root; external references are
-reported but never followed.
+validated report is generated only after that approved work has a final
+disposition, and a separate decision is still required before remediation. All
+target input and audit output remain under the selected project root; external
+references are reported but never followed. The final Markdown and HTML reports
+include the complete assessed-input inventory, command/activity timeline,
+coverage denominators, and every test with expected behavior, actual behavior,
+result, and evidence. The append-only JSONL trace records every observable
+operation for later independent LLM review without secret values or hidden
+chain-of-thought.
 
 When using the prompt remotely, tell the LLM to load the references from the
 same `pentest/` GitHub directory. The prompt records that source location in
